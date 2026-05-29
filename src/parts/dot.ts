@@ -46,12 +46,7 @@ export class Dot {
     if (this.link) {
       this.vector = { ...this.link.end };
       if (this.config.trail.draw && !this.config.trail.complete) {
-        const distance = Math.hypot(
-          this.vector.x - this.config.trail.start.x,
-          this.vector.y - this.config.trail.start.y,
-        );
-        // console.log(distance);
-        if (this.config.trail.path.length > 200 && distance < 5) {
+        if (this.config.trail.path.length > 10 && isTrailComplete(this.link)) {
           console.log('complete');
           console.log(this.config.trail.path.length);
           this.config.trail.complete = true;
@@ -100,4 +95,9 @@ function normalizeDotConfig(config?: Partial<DotConfig>): DotConfig {
     radius: config?.radius ?? 2,
     trail: config?.trail ?? { draw: false },
   };
+}
+
+function isTrailComplete(line?: Line): boolean {
+  if (!line) return true;
+  return line.isFullTurn && isTrailComplete(line.link);
 }

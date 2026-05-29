@@ -3,13 +3,13 @@ import { Renderer } from './render/Renderer';
 import './style.scss';
 
 const renderer = new Renderer(1000, 800);
-const length = [200, 200, 150];
-const velocity = [0.01, 0.01 * Math.sqrt(2), 0.05, 0.07, 0.09];
+const length = [200, 50, 150];
+const velocity = [0.01, 0.051, 0.051, 0.09];
 
 const chainConfig = {
   dots: {
     draw: 'all',
-    trail: 'last',
+    trail: 'all',
   },
   lines: {
     velocity: velocity,
@@ -17,7 +17,7 @@ const chainConfig = {
   },
 } as Partial<ChainConfig>;
 
-const chain = new Chain(2, renderer.centerVector, chainConfig);
+const chain = new Chain(3, renderer.centerVector, chainConfig);
 
 (
   window as typeof window & {
@@ -38,8 +38,8 @@ function draw() {
   chain.lines.forEach((line) => line.update());
   chain.dots.forEach((dot) => dot.update());
 
-  chain.lines.forEach((line) => renderer.drawLine(line));
   chain.dots.forEach((dot) => renderer.drawDot(dot));
+  chain.lines.forEach((line) => renderer.drawLine(line));
 
   requestAnimationFrame(draw);
 }

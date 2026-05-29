@@ -13,7 +13,7 @@ export class Line {
   private length: number;
   private velocity: number;
   public angle: number;
-  private link?: Line;
+  readonly link?: Line;
   public isFullTurn: boolean;
 
   public lineConfig: LineConfig;
@@ -41,7 +41,7 @@ export class Line {
     }
     this.angle += this.velocity;
     this.end = getEndVector(this.start, this.length, this.angle);
-    this.isFullTurn = isNearStartAngle(this.angle);
+    this.isFullTurn = isNearStartAngle(this.angle, this.velocity);
   }
   draw(ctx: CanvasRenderingContext2D): void {
     ctx.strokeStyle = this.lineConfig.color;
@@ -65,7 +65,7 @@ function normalizeAngle(angle: number): number {
   return ((angle % fullTurn) + fullTurn) % fullTurn;
 }
 
-function isNearStartAngle(angle: number, tolerance = 0.01): boolean {
+function isNearStartAngle(angle: number, tolerance = 0.03): boolean {
   const a = normalizeAngle(angle);
 
   return a < tolerance || fullTurn - a < tolerance;
