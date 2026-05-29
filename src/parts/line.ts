@@ -1,4 +1,5 @@
 import type { Vector2 } from '../types';
+import { fullTurn } from '../utils/constants';
 import { getEndVector } from '../utils/Math';
 
 export type LineConfig = {
@@ -13,6 +14,7 @@ export class Line {
   private velocity: number;
   public angle: number;
   private link?: Line;
+  public isFullTurn: boolean;
 
   public lineConfig: LineConfig;
 
@@ -29,6 +31,7 @@ export class Line {
     this.angle = 0;
     this.link = link;
     this.end = getEndVector(this.start, this.length, this.angle);
+    this.isFullTurn = false;
 
     this.lineConfig = normalizeLineConfig(config);
   }
@@ -38,6 +41,7 @@ export class Line {
     }
     this.angle += this.velocity;
     this.end = getEndVector(this.start, this.length, this.angle);
+    this.isFullTurn = isNearStartAngle(this.angle);
   }
   draw(ctx: CanvasRenderingContext2D): void {
     ctx.strokeStyle = this.lineConfig.color;
@@ -55,4 +59,14 @@ function normalizeLineConfig(config?: Partial<LineConfig>): LineConfig {
     color: config?.color ?? 'white',
     width: config?.width ?? 2,
   };
+}
+
+function normalizeAngle(angle: number): number {
+  return ((angle % fullTurn) + fullTurn) % fullTurn;
+}
+
+function isNearStartAngle(angle: number, tolerance = 0.01): boolean {
+  const a = normalizeAngle(angle);
+
+  return a < tolerance || fullTurn - a < tolerance;
 }
