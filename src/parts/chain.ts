@@ -95,7 +95,7 @@ export class Chain {
       ...dotConfig,
       trail: {
         draw: isTrail,
-        ...trailConfig,
+        trailConfig,
       },
     } as DotConfig;
     return new Dot(line.end, line, config);
