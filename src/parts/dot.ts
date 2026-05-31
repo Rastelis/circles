@@ -8,14 +8,14 @@ export type TrailConfig = {
 
 export type Trail =
   | {
-      enable: true;
+      draw: true;
       path: Vector2[];
       start: Vector2;
       complete: boolean;
       trailConfig?: Partial<TrailConfig>;
     }
   | {
-      enable: false;
+      draw: false;
     };
 
 export type DotConfig = {
@@ -36,7 +36,7 @@ export class Dot {
 
     this.config = normalizeDotConfig(config);
 
-    if (this.config.trail.enable) {
+    if (this.config.trail.draw) {
       this.config.trail.path = [{ ...vector }];
       this.config.trail.start = { ...vector };
       this.config.trail.complete = false;
@@ -45,23 +45,25 @@ export class Dot {
   update(): void {
     if (this.link) {
       this.vector = { ...this.link.end };
-      if (this.config.trail.enable && !this.config.trail.complete) {
-        const distance = Math.hypot(
-          this.vector.x - this.config.trail.start.x,
-          this.vector.y - this.config.trail.start.y,
-        );
-        // console.log(distance);
-        if (this.config.trail.path.length > 200 && distance < 5) {
+      if (this.config.trail.draw && !this.config.trail.complete) {
+        if (this.config.trail.path.length > 10 && isTrailComplete(this.link)) {
           console.log('complete');
+          console.log(this.config.trail.path.length);
           this.config.trail.complete = true;
           return;
         }
-        this.config.trail.path.push({ ...this.vector });
+        const last = this.config.trail.path.at(-1);
+        const distance = last
+          ? Math.hypot(this.vector.x - last?.x, this.vector.y - last?.y)
+          : null;
+        if (distance && distance > 2) {
+          this.config.trail.path.push({ ...this.vector });
+        }
       }
     }
   }
   draw(ctx: CanvasRenderingContext2D): void {
-    if (this.config.trail.enable) {
+    if (this.config.trail.draw) {
       ctx.strokeStyle =
         this.config.trail.trailConfig?.color ?? this.config.color;
       ctx.lineWidth = this.config.trail.trailConfig?.width ?? 1;
@@ -97,6 +99,11 @@ function normalizeDotConfig(config?: Partial<DotConfig>): DotConfig {
   return {
     color: config?.color ?? 'red',
     radius: config?.radius ?? 2,
-    trail: config?.trail ?? { enable: false },
+    trail: config?.trail ?? { draw: false },
   };
+}
+
+function isTrailComplete(line?: Line): boolean {
+  if (!line) return true;
+  return line.isFullTurn && isTrailComplete(line.link);
 }

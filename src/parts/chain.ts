@@ -44,20 +44,27 @@ export class Chain {
       );
 
       if (this.config.dots.draw === 'all') {
+        const isTrail =
+          this.config.dots.trail === 'all' ||
+          (this.config.dots.trail === 'last' && i === lineCount - 1);
+
         this.dots.push(
           this.createDot(
             this.lines[i],
-            this.config.dots.trailConfig?.[i] ?? /// fix this draw dots not trails
-              ({ trail: { enable: true } } as Partial<DotConfig>),
+            isTrail,
+            this.config.dots.dotConfig?.[i],
+            this.config.dots.trailConfig?.[i],
           ),
         );
       }
-      if (this.config.dots.trail === 'last' && i === lineCount - 1) {
+      if (this.config.dots.draw === 'last' && i === lineCount - 1) {
+        const isTrail = this.config.dots.trail === 'last';
         this.dots.push(
           this.createDot(
             this.lines[i],
-            this.config.dots?.dotConfig?.[i] ??
-              ({ trail: { enable: true } } as Partial<DotConfig>),
+            isTrail,
+            this.config.dots?.dotConfig?.[i],
+            this.config.dots?.trailConfig?.[i],
           ),
         );
       }
@@ -78,8 +85,20 @@ export class Chain {
       lineConfig,
     );
   }
-  createDot(line: Line, dotConfig?: Partial<DotConfig>) {
-    return new Dot(line.end, line, dotConfig);
+  createDot(
+    line: Line,
+    isTrail: boolean = false,
+    dotConfig?: Partial<DotConfig>,
+    trailConfig?: Partial<TrailConfig>,
+  ) {
+    const config = {
+      ...dotConfig,
+      trail: {
+        draw: isTrail,
+        trailConfig,
+      },
+    } as DotConfig;
+    return new Dot(line.end, line, config);
   }
 }
 
