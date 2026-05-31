@@ -1,9 +1,9 @@
 import type { Vector2 } from '../types';
 
-export function getCanvasCenter(canvas: HTMLCanvasElement) {
+export function getCanvasCenter(width: number, height: number) {
   return {
-    x: canvas.width / 2,
-    y: canvas.height / 2,
+    x: width / 2,
+    y: height / 2,
   };
 }
 

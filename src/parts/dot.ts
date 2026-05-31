@@ -62,37 +62,6 @@ export class Dot {
       }
     }
   }
-  draw(ctx: CanvasRenderingContext2D): void {
-    if (this.config.trail.draw) {
-      ctx.strokeStyle =
-        this.config.trail.trailConfig?.color ?? this.config.color;
-      ctx.lineWidth = this.config.trail.trailConfig?.width ?? 1;
-
-      ctx.beginPath();
-
-      for (let i = 0; i < this.config.trail.path.length; i++) {
-        const point = this.config.trail.path[i];
-
-        if (i === 0) {
-          ctx.moveTo(point.x, point.y);
-        } else {
-          ctx.lineTo(point.x, point.y);
-        }
-        if (
-          this.config.trail.complete &&
-          i === this.config.trail.path.length - 1
-        ) {
-          ctx.lineTo(this.config.trail.path[0].x, this.config.trail.path[0].y);
-        }
-      }
-      ctx.stroke();
-    }
-
-    ctx.fillStyle = this.config.color;
-    ctx.beginPath();
-    ctx.arc(this.vector.x, this.vector.y, this.config.radius, 0, Math.PI * 2);
-    ctx.fill();
-  }
 }
 
 function normalizeDotConfig(config?: Partial<DotConfig>): DotConfig {

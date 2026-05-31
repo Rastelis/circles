@@ -1,38 +1,78 @@
-import { drawBackground } from '../parts/background';
+import { Application, Graphics } from 'pixi.js';
 import type { Dot } from '../parts/dot';
 import type { Line } from '../parts/line';
-import type { Vector2 } from '../types';
 import { getCanvasCenter } from '../utils/Math';
+import type { Vector2 } from '../types';
 
 export class Renderer {
-  private canvas: HTMLCanvasElement;
-  private ctx: CanvasRenderingContext2D;
-  public bgColor: string;
+  private app = new Application();
+  private graphics = new Graphics();
+  readonly width: number;
+  readonly height: number;
+  public backgroundColor: string;
   readonly centerVector: Vector2;
 
-  constructor(width: number, height: number, bgColor: string = 'black') {
-    const dpr = window.devicePixelRatio || 1;
-    this.canvas = document.createElement('canvas');
-    this.canvas.width = width * dpr;
-    this.canvas.height = height * dpr;
-    this.canvas.style.width = `${width}px`;
-    this.canvas.style.height = `${height}px`;
-    this.centerVector = getCanvasCenter(this.canvas);
-
-    document.body.appendChild(this.canvas);
-    const ctx = this.canvas.getContext('2d') as CanvasRenderingContext2D;
-
-    this.ctx = ctx;
-    this.bgColor = bgColor;
-    this.ctx.scale(dpr, dpr);
+  constructor(
+    width: number,
+    height: number,
+    backgroundColor: string = '#000000',
+  ) {
+    this.width = width;
+    this.height = height;
+    this.backgroundColor = backgroundColor;
+    this.centerVector = getCanvasCenter(this.width, this.height);
   }
+
+  async init(): Promise<void> {
+    await this.app.init({
+      width: this.width,
+      height: this.height,
+      background: this.backgroundColor,
+      antialias: true,
+    });
+
+    document.body.appendChild(this.app.canvas);
+    this.app.stage.addChild(this.graphics);
+  }
+
   clear() {
-    drawBackground(this.ctx, this.canvas, this.bgColor);
+    this.graphics.clear();
   }
-  drawLine(line: Line) {
-    line.draw(this.ctx);
+  drawLine(line: Line): void {
+    this.graphics
+      .moveTo(line.start.x, line.start.y)
+      .lineTo(line.end.x, line.end.y)
+      .stroke({
+        width: line.lineConfig.width,
+        color: line.lineConfig.color,
+      });
   }
   drawDot(dot: Dot) {
-    dot.draw(this.ctx);
+    this.drawTrail(dot);
+    this.graphics
+      .circle(dot.vector.x, dot.vector.y, dot.config.radius)
+      .fill(dot.config.color);
+  }
+  drawTrail(dot: Dot) {
+    if (dot.config.trail.draw && dot.config.trail.path.length >= 2) {
+      const start = dot.config.trail.path[0];
+
+      this.graphics.moveTo(start.x, start.y);
+
+      for (let i = 0; i < dot.config.trail.path.length; i++) {
+        const point = dot.config.trail.path[i];
+        this.graphics.lineTo(point.x, point.y);
+        if (
+          dot.config.trail.complete &&
+          i === dot.config.trail.path.length - 1
+        ) {
+          this.graphics.lineTo(start.x, start.y);
+        }
+      }
+      this.graphics.stroke({
+        color: dot.config.trail.trailConfig?.color ?? dot.config.color,
+        width: dot.config.trail.trailConfig?.width ?? 1,
+      });
+    }
   }
 }

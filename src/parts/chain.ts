@@ -1,3 +1,4 @@
+import type { Renderer } from '../render/Renderer';
 import type { Vector2 } from '../types';
 import { Dot, type DotConfig, type TrailConfig } from './dot';
 import { Line, type LineConfig } from './line';
@@ -99,6 +100,14 @@ export class Chain {
       },
     } as DotConfig;
     return new Dot(line.end, line, config);
+  }
+  update() {
+    this.lines.forEach((line) => line.update());
+    this.dots.forEach((dot) => dot.update());
+  }
+  draw(renderer: Renderer) {
+    this.dots.forEach((dot) => renderer.drawDot(dot));
+    this.lines.forEach((line) => renderer.drawLine(line));
   }
 }
 

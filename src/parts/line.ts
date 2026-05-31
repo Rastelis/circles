@@ -43,15 +43,6 @@ export class Line {
     this.end = getEndVector(this.start, this.length, this.angle);
     this.isFullTurn = isNearStartAngle(this.angle, this.velocity);
   }
-  draw(ctx: CanvasRenderingContext2D): void {
-    ctx.strokeStyle = this.lineConfig.color;
-    ctx.lineWidth = this.lineConfig.width;
-
-    ctx.beginPath();
-    ctx.moveTo(this.start.x, this.start.y);
-    ctx.lineTo(this.end.x, this.end.y);
-    ctx.stroke();
-  }
 }
 
 function normalizeLineConfig(config?: Partial<LineConfig>): LineConfig {
