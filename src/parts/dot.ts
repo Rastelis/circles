@@ -52,7 +52,13 @@ export class Dot {
           this.config.trail.complete = true;
           return;
         }
-        this.config.trail.path.push({ ...this.vector });
+        const last = this.config.trail.path.at(-1);
+        const distance = last
+          ? Math.hypot(this.vector.x - last?.x, this.vector.y - last?.y)
+          : null;
+        if (distance && distance > 2) {
+          this.config.trail.path.push({ ...this.vector });
+        }
       }
     }
   }
